@@ -61,6 +61,8 @@ npm install
 
 npm run dev
 
+cd api-server
 
+npm start
 
 ## The application will typically start on http://localhost:5173.
