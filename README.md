@@ -46,25 +46,25 @@ Data Storage: Local Storage (for client-side persistence)
 
 ## ⚙️ Setup and Installation (Local Development)
 
-To run this project locally, follow these simple steps:
+# To run this project locally, follow these simple steps:
 
-Clone the repository:
+# Clone the repository:
 
 git clone [https://github.com/YOUR_USERNAME/prospecting-tracker.git](https://github.com/YOUR_USERNAME/prospecting-tracker.git)
 cd prospecting-tracker
 
 
 
-Install dependencies:
+# Install dependencies:
 
 npm install
 
 
 
-Run the development server:
+# Run the development server:
 
 npm run dev
 
 
 
-The application will typically start on http://localhost:5173.
+## The application will typically start on http://localhost:5173.
