@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 // --- LOKALISIERUNGS-KONSTANTEN (DE/EN) ---
 const TRANSLATIONS = {
     de: {
-        title: "Prospecting Tracker",
+        title: "Prospecting! Tracker",
         item_name_placeholder: "Item Name (z.B. Flarebloom)",
         amount_placeholder: "Anzahl",
         weight_placeholder: "Gewicht (kg, optional)",
@@ -36,7 +36,7 @@ const TRANSLATIONS = {
         language_title: "Sprache umschalten (DE/EN)"
     },
     en: {
-        title: "Prospecting Tracker",
+        title: "Prospecting! Tracker",
         item_name_placeholder: "Item Name (e.g., Flarebloom)",
         amount_placeholder: "Amount",
         weight_placeholder: "Weight (kg, optional)",
