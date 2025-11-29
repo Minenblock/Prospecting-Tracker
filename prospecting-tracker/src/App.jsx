@@ -33,7 +33,9 @@ const TRANSLATIONS = {
         target_decrement_title: "Zielmenge reduzieren",
         target_increment_title: "Zielmenge erhöhen",
         dark_mode_title: "Dark Mode umschalten",
-        language_title: "Sprache umschalten (DE/EN)"
+        language_title: "Sprache umschalten (DE/EN)",
+        search_placeholder: "Hinzugefügte Items suchen...", // HINZUGEFÜGT
+        no_search_results: (term) => `Keine Einträge für "${term}" gefunden.`, // HINZUGEFÜGT
     },
     en: {
         title: "Prospecting! Tracker",
@@ -66,7 +68,9 @@ const TRANSLATIONS = {
         target_decrement_title: "Reduce target amount",
         target_increment_title: "Increase target amount",
         dark_mode_title: "Toggle dark mode",
-        language_title: "Toggle language (DE/EN)"
+        language_title: "Toggle language (DE/EN)",
+        search_placeholder: "Search added items...", // HINZUGEFÜGT
+        no_search_results: (term) => `No entries found for "${term}".`, // HINZUGEFÜGT
     }
 };
 
@@ -116,7 +120,6 @@ const extractTextFromHtml = (html) => {
     return tempDiv.textContent || tempDiv.innerText || html;
 };
 
-// --- KORREKTUR DER LOADINITIALITEMS FUNKTION ---
 const loadInitialItems = () => {
     const savedItems = localStorage.getItem('prospecting-items');
     if (savedItems) {
@@ -146,7 +149,6 @@ const loadInitialItems = () => {
     }
     return [];
 };
-// --- ENDE KORREKTUR DER LOADINITIALITEMS FUNKTION ---
 
 const App = () => {
     // --- LOKALISIERUNGS-STATE ---
@@ -164,6 +166,9 @@ const App = () => {
     const [newItemWeight, setNewItemWeight] = useState(''); 
     const [newItemWeightOperator, setNewItemWeightOperator] = useState('=');
     
+    // --- NEUER STATE FÜR DEN SUCHBEGRIFF ---
+    const [searchTerm, setSearchTerm] = useState(''); 
+
     const [collapsedGroups, setCollapsedGroups] = useState(new Set()); 
     const [expandedLocations, setExpandedLocations] = useState(new Set()); 
     const [isUpdating, setIsUpdating] = useState(false); 
@@ -381,7 +386,12 @@ const App = () => {
         return `(${prefix}${formattedKg} kg)`;
     };
     
-    const groupedItems = items.reduce((groups, item) => {
+    // --- FILTERUNG DER ITEMS NACH SUCHBEGRIFF ---
+    const filteredItems = items.filter(item => 
+        item.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const groupedItems = filteredItems.reduce((groups, item) => { // Reduziere die GEFILTERTEN Items
         let locationKey;
         
         if (Array.isArray(item.info) && item.info.length > 0) {
@@ -519,6 +529,20 @@ const App = () => {
                 </div>
             </form>
             
+            {/* Suchfeld HINZUGEFÜGT */}
+            {items.length > 0 && (
+                <div className="mb-4">
+                    <input
+                        type="text"
+                        placeholder={t.search_placeholder}
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="p-3 border border-gray-300 rounded-lg w-full bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-300"
+                    />
+                </div>
+            )}
+            {/* ENDE Suchfeld */}
+            
             {/* UPDATE-SCHALTFLÄCHE */}
             {items.length > 0 && (
                 <div className="mb-8 text-center">
@@ -536,10 +560,16 @@ const App = () => {
             {/* ENDE UPDATE-SCHALTFLÄCHE */}
 
             <div className="flex flex-wrap gap-4 justify-start"> 
+                {/* Zeige "Keine Items" an, wenn die Gesamtzahl 0 ist */}
                 {items.length === 0 && (
                     <p className="text-center text-gray-500 dark:text-gray-400 italic w-full">{t.no_items}</p>
                 )}
                 
+                {/* Zeige "Keine Suchergebnisse" an, wenn die gefilterte Liste leer ist, aber die Hauptliste nicht */}
+                {filteredItems.length === 0 && items.length > 0 && searchTerm.length > 0 && (
+                    <p className="text-center text-gray-500 dark:text-gray-400 italic w-full">{t.no_search_results(searchTerm)}</p>
+                )}
+
                 {locationGroups.map(locationKey => (
                     <div 
                         key={locationKey} 
