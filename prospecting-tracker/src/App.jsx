@@ -34,8 +34,8 @@ const TRANSLATIONS = {
         target_increment_title: "Zielmenge erhöhen",
         dark_mode_title: "Dark Mode umschalten",
         language_title: "Sprache umschalten (DE/EN)",
-        search_placeholder: "Hinzugefügte Items suchen...", // HINZUGEFÜGT
-        no_search_results: (term) => `Keine Einträge für "${term}" gefunden.`, // HINZUGEFÜGT
+        search_placeholder: "Einträge suchen...",
+        no_search_results: (term) => `Keine Einträge für "${term}" gefunden.`,
     },
     en: {
         title: "Prospecting! Tracker",
@@ -69,8 +69,8 @@ const TRANSLATIONS = {
         target_increment_title: "Increase target amount",
         dark_mode_title: "Toggle dark mode",
         language_title: "Toggle language (DE/EN)",
-        search_placeholder: "Search added items...", // HINZUGEFÜGT
-        no_search_results: (term) => `No entries found for "${term}".`, // HINZUGEFÜGT
+        search_placeholder: "Search items...",
+        no_search_results: (term) => `No entries found for "${term}".`,
     }
 };
 
@@ -166,7 +166,7 @@ const App = () => {
     const [newItemWeight, setNewItemWeight] = useState(''); 
     const [newItemWeightOperator, setNewItemWeightOperator] = useState('=');
     
-    // --- NEUER STATE FÜR DEN SUCHBEGRIFF ---
+    // --- STATE FÜR DEN SUCHBEGRIFF ---
     const [searchTerm, setSearchTerm] = useState(''); 
 
     const [collapsedGroups, setCollapsedGroups] = useState(new Set()); 
@@ -270,9 +270,13 @@ const App = () => {
         }
     };
 
+    // --- GEÄNDERTE handleAddItem FUNKTION ---
     const handleAddItem = async (e) => {
         e.preventDefault();
-        if (!newItemName.trim() || parseInt(newItemAmount) < 1) return;
+        const itemName = newItemName.trim();
+        const targetAmount = parseInt(newItemAmount) || 1;
+
+        if (!itemName || targetAmount < 1) return;
 
         let weightValue = null;
         if (newItemWeight.trim() !== '') {
@@ -283,31 +287,62 @@ const App = () => {
                 return; 
             }
         }
-
-        const itemName = newItemName.trim();
-        const targetAmount = parseInt(newItemAmount) || 1;
-        const details = await fetchItemDetails(itemName);
-
-        let extraInfo = details.data.length > 0 ? details.data : details.error || t.no_details;
         
-        const newItem = {
-            id: Date.now(),
-            name: itemName,
-            target: targetAmount,
-            current: 0,
-            completed: 0 >= targetAmount, 
-            info: extraInfo,
-            weightKg: weightValue,
-            weightOperator: weightValue !== null ? newItemWeightOperator : null,
-            rarity: details.rarity
-        };
+        // 1. Prüfen, ob der Eintrag bereits existiert (case-insensitiv)
+        const existingItem = items.find(item => item.name.toLowerCase() === itemName.toLowerCase());
+        
+        if (existingItem) {
+            // 2. Eintrag existiert: Zielmenge erhöhen
+            const newTarget = Math.max(1, existingItem.target + targetAmount);
+            
+            setItems(currentItems => {
+                // Finde den Index und erstelle eine Kopie, um das State-Update zu gewährleisten
+                const updatedItems = currentItems.map(item => {
+                    if (item.id === existingItem.id) {
+                        return { 
+                            ...item, 
+                            target: newTarget,
+                            completed: item.current >= newTarget 
+                        };
+                    }
+                    return item;
+                });
+                
+                // Optional: Bewege den aktualisierten Eintrag an den Anfang, damit er sofort sichtbar ist.
+                const updatedItem = updatedItems.find(item => item.id === existingItem.id);
+                const itemsWithoutUpdated = updatedItems.filter(item => item.id !== existingItem.id);
+                
+                return [updatedItem, ...itemsWithoutUpdated];
+            });
+            
+        } else {
+            // 3. Eintrag existiert nicht: Neuen Eintrag hinzufügen
+            const details = await fetchItemDetails(itemName);
 
-        setItems([newItem, ...items]);
+            let extraInfo = details.data.length > 0 ? details.data : details.error || t.no_details;
+            
+            const newItem = {
+                id: Date.now(),
+                name: itemName,
+                target: targetAmount, 
+                current: 0,
+                completed: 0 >= targetAmount, 
+                info: extraInfo,
+                weightKg: weightValue,
+                weightOperator: weightValue !== null ? newItemWeightOperator : null,
+                rarity: details.rarity
+            };
+
+            setItems([newItem, ...items]);
+        }
+
+        // 4. Formularfelder zurücksetzen (in beiden Fällen)
         setNewItemName('');
         setNewItemAmount(1);
         setNewItemWeight(''); 
         setNewItemWeightOperator('='); 
     };
+    // --- ENDE handleAddItem FUNKTION ---
 
     const handleUpdateAllRarities = async () => {
         if (isUpdating) return;
