@@ -2,7 +2,7 @@ Prospecting Tracker App
 
 This is a personal, utility-focused web application designed to help players efficiently track item farming goals in games that involve gathering, mining, or "prospecting" for resources with varying rarity and location dependencies.
 
-The app uses a clean, responsive single-page design built with React and styled using Tailwind CSS.
+The app uses a clean, responsive single-page design built with React and styled using Tailwind CSS
 
 # ✨ Features
 
@@ -13,6 +13,8 @@ Real-Time Progress: Increment and decrement the 'Found' amount directly within t
 Completion Status: Items are automatically marked with a green checkmark (✅ Target reached!) once the 'Found' amount meets or exceeds the 'Target' amount.
 
 Local Persistence: All items, targets, and progress are saved locally in your browser's storage, ensuring your data remains intact even after closing and reopening the app.
+
+Grabs Information used on: https://prospecting.miraheze.org/wiki/
 
 # 🔎 Item Information & Prospecting Details
 
