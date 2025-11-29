@@ -70,6 +70,9 @@ const TRANSLATIONS = {
     }
 };
 
+// --- WIKI BASE URL HINZUGEFÜGT ---
+const WIKI_BASE_URL = "https://prospecting.miraheze.org";
+
 // --- RESTLICHE KONSTANTEN ---
 const RARITY_GRADIENTS = {
     'Mythic': 'from-fuchsia-400 to-pink-500', 
@@ -113,14 +116,25 @@ const extractTextFromHtml = (html) => {
     return tempDiv.textContent || tempDiv.innerText || html;
 };
 
+// --- KORREKTUR DER LOADINITIALITEMS FUNKTION ---
 const loadInitialItems = () => {
     const savedItems = localStorage.getItem('prospecting-items');
     if (savedItems) {
         try {
             const parsedItems = JSON.parse(savedItems);
+            // Wende die Korrektur auf alle Locations von existierenden Items an
             return parsedItems.map(item => ({
                 ...item,
-                info: typeof item.info === 'string' ? item.info : (item.info || []),
+                info: Array.isArray(item.info) 
+                    ? item.info.map(infoItem => ({
+                        ...infoItem,
+                        // Fügt volle URL, target="_blank" und rel="noopener noreferrer" hinzu
+                        location_html: infoItem.location_html.replace(
+                            /href="(\/wiki\/[^"]*)"/g, 
+                            `href="${WIKI_BASE_URL}$1" target="_blank" rel="noopener noreferrer"`
+                        )
+                    })) 
+                    : (item.info || []),
                 weightKg: item.weightKg || null, 
                 weightOperator: item.weightOperator || '=',
                 rarity: item.rarity || '', 
@@ -132,6 +146,7 @@ const loadInitialItems = () => {
     }
     return [];
 };
+// --- ENDE KORREKTUR DER LOADINITIALITEMS FUNKTION ---
 
 const App = () => {
     // --- LOKALISIERUNGS-STATE ---
@@ -227,9 +242,20 @@ const App = () => {
             
             const json = await response.json();
             
+            // --- KORREKTUR DER LINKS HIER (WIKI-BASIS-URL & target="_blank") ---
+            const processedData = Array.isArray(json.data) ? json.data.map(item => ({
+                ...item,
+                // Ersetze alle relativen /wiki/ Links durch die vollständige URL UND füge target="_blank" hinzu.
+                location_html: item.location_html.replace(
+                    /href="(\/wiki\/[^"]*)"/g, 
+                    `href="${WIKI_BASE_URL}$1" target="_blank" rel="noopener noreferrer"`
+                )
+            })) : [];
+            // --- ENDE KORREKTUR ---
+            
             return {
                 rarity: json.rarity || '',
-                data: Array.isArray(json.data) ? json.data : [],
+                data: processedData,
                 error: json.error || ''
             };
 
