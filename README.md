@@ -44,8 +44,6 @@ Data Storage: Local Storage (for client-side persistence)
 
 # ⚙️ Setup and Installation (Local Development)
 
-# To run this project locally, follow these simple steps:
-
 ## Clone the repository:
 
 git clone [https://github.com/YOUR_USERNAME/prospecting-tracker.git](https://github.com/YOUR_USERNAME/prospecting-tracker.git)
