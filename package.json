@@ -1,0 +1,12 @@
+{
+    "name": "prospecting-tracker-root",
+    "version": "1.0.0",
+    "description": "Root package to manage frontend and backend",
+    "scripts": {
+      "start:proxy": "cd **%cd%**/api-server && npm start",
+      "start:frontend": "cd **%cd%**/prospecting-tracker && npm run dev"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC"
+  }

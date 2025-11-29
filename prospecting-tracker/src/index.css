@@ -1,0 +1,6 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+.dark body {
+    background-color: #111827; /* Tailwind's dark:bg-gray-900 */
+  }
